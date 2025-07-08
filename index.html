@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Шифратор / Дешифратор</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+    textarea { width: 100%; height: 100px; margin: 10px 0; }
+    button { padding: 10px 20px; font-size: 16px; }
+    .tabs { display: flex; margin-bottom: 10px; }
+    .tab { padding: 10px 20px; background: #ccc; margin-right: 5px; cursor: pointer; border-radius: 5px 5px 0 0; }
+    .tab.active { background: white; font-weight: bold; }
+    .tab-content { display: none; background: white; padding: 20px; border-radius: 0 5px 5px 5px; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body>
+  <h1>Шифратор и дешифратор</h1>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('encryptTab')">Шифратор</div>
+    <div class="tab" onclick="showTab('decryptTab')">Дешифратор</div>
+  </div>
+
+  <div id="encryptTab" class="tab-content active">
+    <label for="inputText">Введите текст на русском:</label>
+    <textarea id="inputText"></textarea>
+    <button onclick="encrypt()">Зашифровать</button>
+    <label for="outputText">Зашифрованный текст:</label>
+    <textarea id="outputText" readonly></textarea>
+  </div>
+
+  <div id="decryptTab" class="tab-content">
+    <label for="cipherText">Введите зашифрованный текст:</label>
+    <textarea id="cipherText"></textarea>
+    <button onclick="decrypt()">Расшифровать</button>
+    <label for="plainText">Расшифрованный текст:</label>
+    <textarea id="plainText" readonly></textarea>
+  </div>
+
+  <script>
+    const cipherMap = {
+      'А': 'Z', 'Б': '>', 'В': 'X', 'Г': 'H', 'Д': '|¥|', 'Е': '=', 'Ё': 'Y',
+      'Ж': 'Z3', 'З': '||--', 'И': '¥F1', 'Й': '[^"', 'К': '/', 'Л': '^1|',
+      'М': '¥', 'Н': '!L^', 'О': '¥[', 'П': 'PZ', 'Р': '1#', 'С': '7#',
+      'Т': 'U', 'У': 'K7+', 'Ф': 'K7+', 'Х': 'F-≠', 'Ц': '«[', 'Ч': 'N^',
+      'Ш': ']', 'Щ': 'IY', 'Ъ': 'M_', 'Ы': 'T', 'Ь': '<', 'Э': ':',
+      'Ю': 'L`_', 'Я': '#'
+    };
+
+    const reverseMap = Object.fromEntries(
+      Object.entries(cipherMap).map(([k, v]) => [v, k])
+    );
+
+    function encrypt() {
+      const input = document.getElementById("inputText").value.toUpperCase();
+      let result = '';
+      for (let char of input) {
+        result += cipherMap[char] || char;
+      }
+      document.getElementById("outputText").value = result;
+    }
+
+    function decrypt() {
+      let input = document.getElementById("cipherText").value;
+      let result = '';
+
+      const patterns = Object.keys(reverseMap).sort((a, b) => b.length - a.length);
+      while (input.length > 0) {
+        let matched = false;
+        for (let p of patterns) {
+          if (input.startsWith(p)) {
+            result += reverseMap[p];
+            input = input.slice(p.length);
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          result += input[0];
+          input = input.slice(1);
+        }
+      }
+      document.getElementById("plainText").value = result;
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
